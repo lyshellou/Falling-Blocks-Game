@@ -17,32 +17,59 @@
             <span class="label">State</span>
             <strong id="status">Live</strong>
           </div>
-          <button id="restart" type="button">Restart</button>
+          <div class="actions">
+            <button id="hard-drop" type="button">到底</button>
+            <button id="restart" type="button">Restart</button>
+            <button id="help" type="button" aria-haspopup="dialog">?</button>
+          </div>
         </header>
-        <div id="board" class="board" aria-label="Game board"></div>
-        <section class="controls-hint" aria-label="按键提示">
-          <h2>按键提示</h2>
-          <dl>
-            <div>
-              <dt>← / →</dt>
-              <dd>左右移动</dd>
-            </div>
-            <div>
-              <dt>↓</dt>
-              <dd>加速下落</dd>
-            </div>
-            <div>
-              <dt>↑ / Space</dt>
-              <dd>旋转方块</dd>
-            </div>
-            <div>
-              <dt>R</dt>
-              <dd>重新开始</dd>
-            </div>
-          </dl>
+        <section class="next-panel" aria-label="下一个方块">
+          <div>
+            <span class="label">Next</span>
+            <strong>下一个方块</strong>
+          </div>
+          <div id="next-preview" class="preview" aria-hidden="true"></div>
         </section>
+        <div id="board" class="board" aria-label="Game board"></div>
       </section>
     </main>
+    <div id="start-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="start-title">
+      <section class="modal">
+        <h2 id="start-title">准备开始</h2>
+        <p>点击开始后方块才会下落。</p>
+        <button id="start-game" type="button">开始游戏</button>
+      </section>
+    </div>
+    <div id="help-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <section class="modal">
+        <div class="modal-titlebar">
+          <h2 id="help-title">按键提示</h2>
+          <button id="close-help" type="button" aria-label="关闭按键提示">×</button>
+        </div>
+        <dl class="controls-list">
+          <div>
+            <dt>← / →</dt>
+            <dd>左右移动</dd>
+          </div>
+          <div>
+            <dt>↓</dt>
+            <dd>加速下落</dd>
+          </div>
+          <div>
+            <dt>↑</dt>
+            <dd>旋转方块</dd>
+          </div>
+          <div>
+            <dt>Space</dt>
+            <dd>直接落到底部</dd>
+          </div>
+          <div>
+            <dt>R</dt>
+            <dd>重新开始</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

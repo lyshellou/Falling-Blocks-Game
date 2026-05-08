@@ -1,5 +1,5 @@
 :root {
-  --panel-width: min(420px, 100%, calc((100dvh - 206px) / 2));
+  --panel-width: min(420px, 100%, calc((100dvh - 190px) / 2));
   color: #f5f7fb;
   background: #11131a;
   font-family:
@@ -96,7 +96,8 @@ button {
   white-space: nowrap;
 }
 
-.scorebar button {
+.scorebar button,
+.modal button {
   min-width: 74px;
   padding: 0 12px;
   color: #17130a;
@@ -109,12 +110,72 @@ button {
   font-weight: 800;
 }
 
-.scorebar button:hover {
+.actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.actions button {
+  min-width: 58px;
+}
+
+#help {
+  min-width: 42px;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.scorebar button:hover,
+.modal button:hover {
   filter: brightness(1.07);
 }
 
-.scorebar button:active {
+.scorebar button:active,
+.modal button:active {
   transform: translateY(1px);
+}
+
+.next-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)),
+    rgba(255, 255, 255, 0.045);
+}
+
+.next-panel strong {
+  display: block;
+  margin-top: 4px;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.preview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: 54px;
+  aspect-ratio: 1;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(7, 10, 18, 0.72);
+  gap: 2px;
+}
+
+.preview-cell {
+  min-width: 0;
+  min-height: 0;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .board {
@@ -135,64 +196,6 @@ button {
     inset 0 18px 34px rgba(255, 255, 255, 0.025),
     0 18px 42px rgba(0, 0, 0, 0.32);
   gap: clamp(2px, 0.55dvh, 3px);
-}
-
-.controls-hint {
-  display: grid;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.055);
-}
-
-.controls-hint h2 {
-  margin: 0;
-  color: #ffffff;
-  font-size: 13px;
-  line-height: 1.2;
-}
-
-.controls-hint dl {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  margin: 0;
-}
-
-.controls-hint div {
-  display: grid;
-  grid-template-columns: minmax(58px, auto) 1fr;
-  gap: 8px;
-  align-items: center;
-  min-width: 0;
-}
-
-.controls-hint dt,
-.controls-hint dd {
-  margin: 0;
-  line-height: 1.2;
-}
-
-.controls-hint dt {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 24px;
-  padding: 0 8px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 6px;
-  background: rgba(7, 10, 18, 0.72);
-  color: #f8fbff;
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.controls-hint dd {
-  min-width: 0;
-  color: #cbd5e1;
-  font-size: 12px;
 }
 
 .cell {
@@ -245,9 +248,113 @@ button {
     0 18px 42px rgba(0, 0, 0, 0.32);
 }
 
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(5, 7, 12, 0.64);
+  backdrop-filter: blur(8px);
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  display: grid;
+  width: min(360px, 100%);
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.055)),
+    #111622;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.5);
+}
+
+.modal h2,
+.modal p {
+  margin: 0;
+}
+
+.modal h2 {
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.modal p {
+  color: #cbd5e1;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal button {
+  min-height: 44px;
+  border: 0;
+}
+
+.modal-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#close-help {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.controls-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.controls-list div {
+  display: grid;
+  grid-template-columns: minmax(74px, auto) 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.controls-list dt,
+.controls-list dd {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.controls-list dt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  background: rgba(7, 10, 18, 0.72);
+  color: #f8fbff;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.controls-list dd {
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
 @media (max-width: 440px) {
   :root {
-    --panel-width: min(100%, calc((100dvh - 194px) / 2));
+    --panel-width: min(100%, calc((100dvh - 210px) / 2));
   }
 
   .app-shell {
@@ -259,22 +366,28 @@ button {
   }
 
   .scorebar {
+    grid-template-columns: 1fr 1fr;
     gap: 6px;
   }
 
+  .actions {
+    grid-column: 1 / -1;
+  }
+
   .scorebar button {
-    min-width: 68px;
+    flex: 1;
+    min-width: 0;
     padding: 0 8px;
   }
 
-  .controls-hint dl {
-    grid-template-columns: 1fr;
+  #help {
+    flex: 0 0 42px;
   }
 }
 
 @media (max-height: 640px) {
   :root {
-    --panel-width: min(380px, 100%, calc((100dvh - 186px) / 2));
+    --panel-width: min(380px, 100%, calc((100dvh - 174px) / 2));
   }
 
   .game-panel {
@@ -286,16 +399,16 @@ button {
     min-height: 40px;
   }
 
-  .controls-hint {
-    gap: 6px;
+  .next-panel {
+    min-height: 62px;
     padding: 8px;
   }
 
-  .controls-hint h2 {
-    font-size: 12px;
+  .preview {
+    width: 46px;
   }
 
-  .controls-hint dt {
-    min-height: 22px;
+  .next-panel strong {
+    font-size: 13px;
   }
 }

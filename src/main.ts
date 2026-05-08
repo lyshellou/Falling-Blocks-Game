@@ -63,6 +63,13 @@ const boardElement = requiredElement<HTMLDivElement>('#board');
 const scoreElement = requiredElement<HTMLElement>('#score');
 const statusElement = requiredElement<HTMLElement>('#status');
 const restartButton = requiredElement<HTMLButtonElement>('#restart');
+const hardDropButton = requiredElement<HTMLButtonElement>('#hard-drop');
+const helpButton = requiredElement<HTMLButtonElement>('#help');
+const closeHelpButton = requiredElement<HTMLButtonElement>('#close-help');
+const startButton = requiredElement<HTMLButtonElement>('#start-game');
+const nextPreviewElement = requiredElement<HTMLDivElement>('#next-preview');
+const startModal = requiredElement<HTMLDivElement>('#start-modal');
+const helpModal = requiredElement<HTMLDivElement>('#help-modal');
 
 function requiredElement<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -76,9 +83,11 @@ function requiredElement<T extends Element>(selector: string): T {
 
 let board: Cell[][] = createBoard();
 let currentPiece: Piece = createPiece();
+let nextPiece: Piece = createPiece();
 let score = 0;
+let isStarted = false;
 let isGameOver = false;
-let dropTimer = window.setInterval(tick, DROP_INTERVAL_MS);
+let dropTimer: number | undefined;
 
 function createBoard(): Cell[][] {
   return Array.from({ length: BOARD_HEIGHT }, () => Array<Cell>(BOARD_WIDTH).fill(null));
@@ -118,12 +127,13 @@ function drawBoard(): void {
   }
 
   scoreElement.textContent = String(score);
-  statusElement.textContent = isGameOver ? 'Game Over' : 'Live';
+  statusElement.textContent = isGameOver ? 'Game Over' : isStarted ? 'Live' : 'Ready';
   document.body.classList.toggle('game-over', isGameOver);
+  drawNextPreview();
 }
 
 function tick(): void {
-  if (isGameOver) {
+  if (!isStarted || isGameOver) {
     return;
   }
 
@@ -156,6 +166,21 @@ function rotatePiece(): void {
   if (!hasCollision(rotatedPiece)) {
     currentPiece = rotatedPiece;
   }
+}
+
+function hardDropPiece(): void {
+  if (!isStarted || isGameOver) {
+    return;
+  }
+
+  while (movePiece(0, 1)) {
+    // Keep dropping until the next row would collide.
+  }
+
+  lockPiece();
+  clearLines();
+  spawnNextPiece();
+  drawBoard();
 }
 
 function hasCollision(piece: Piece): boolean {
@@ -192,22 +217,48 @@ function clearLines(): void {
 }
 
 function spawnNextPiece(): void {
-  currentPiece = createPiece();
+  currentPiece = nextPiece;
+  nextPiece = createPiece();
 
   if (hasCollision(currentPiece)) {
     isGameOver = true;
-    window.clearInterval(dropTimer);
+    stopDropTimer();
   }
+}
+
+function startGame(): void {
+  if (isStarted) {
+    return;
+  }
+
+  isStarted = true;
+  startModal.classList.add('hidden');
+  startDropTimer();
+  drawBoard();
 }
 
 function restartGame(): void {
   board = createBoard();
   currentPiece = createPiece();
+  nextPiece = createPiece();
   score = 0;
+  isStarted = true;
   isGameOver = false;
-  window.clearInterval(dropTimer);
-  dropTimer = window.setInterval(tick, DROP_INTERVAL_MS);
+  startModal.classList.add('hidden');
+  startDropTimer();
   drawBoard();
+}
+
+function startDropTimer(): void {
+  stopDropTimer();
+  dropTimer = window.setInterval(tick, DROP_INTERVAL_MS);
+}
+
+function stopDropTimer(): void {
+  if (dropTimer !== undefined) {
+    window.clearInterval(dropTimer);
+    dropTimer = undefined;
+  }
 }
 
 function forEachPieceCell(piece: Piece, callback: (x: number, y: number) => void): void {
@@ -220,8 +271,48 @@ function forEachPieceCell(piece: Piece, callback: (x: number, y: number) => void
   });
 }
 
+function drawNextPreview(): void {
+  nextPreviewElement.innerHTML = '';
+
+  const previewSize = 4;
+  const offsetX = Math.floor((previewSize - nextPiece.shape[0].length) / 2);
+  const offsetY = Math.floor((previewSize - nextPiece.shape.length) / 2);
+  const previewCells = new Map<string, string>();
+
+  nextPiece.shape.forEach((row, rowIndex) => {
+    row.forEach((value, columnIndex) => {
+      if (value) {
+        previewCells.set(`${columnIndex + offsetX},${rowIndex + offsetY}`, nextPiece.color);
+      }
+    });
+  });
+
+  for (let y = 0; y < previewSize; y += 1) {
+    for (let x = 0; x < previewSize; x += 1) {
+      const cell = document.createElement('div');
+      const color = previewCells.get(`${x},${y}`);
+
+      cell.className = color ? `preview-cell filled ${color}` : 'preview-cell';
+      nextPreviewElement.appendChild(cell);
+    }
+  }
+}
+
+function showHelp(): void {
+  helpModal.classList.remove('hidden');
+}
+
+function hideHelp(): void {
+  helpModal.classList.add('hidden');
+}
+
 function handleKeydown(event: KeyboardEvent): void {
   const key = event.key.toLowerCase();
+
+  if (key === 'escape') {
+    hideHelp();
+    return;
+  }
 
   if (key === 'r') {
     restartGame();
@@ -248,15 +339,30 @@ function handleKeydown(event: KeyboardEvent): void {
     return;
   }
 
-  if (event.key === 'ArrowUp' || event.key === ' ') {
+  if (event.key === 'ArrowUp') {
     event.preventDefault();
     rotatePiece();
+  }
+
+  if (event.key === ' ') {
+    event.preventDefault();
+    hardDropPiece();
+    return;
   }
 
   drawBoard();
 }
 
 restartButton.addEventListener('click', restartGame);
+hardDropButton.addEventListener('click', hardDropPiece);
+helpButton.addEventListener('click', showHelp);
+closeHelpButton.addEventListener('click', hideHelp);
+startButton.addEventListener('click', startGame);
+helpModal.addEventListener('click', (event) => {
+  if (event.target === helpModal) {
+    hideHelp();
+  }
+});
 window.addEventListener('keydown', handleKeydown);
 
 drawBoard();
