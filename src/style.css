@@ -1,5 +1,5 @@
 :root {
-  --panel-width: min(420px, 100%, calc((100dvh - 116px) / 2));
+  --panel-width: min(420px, 100%, calc((100dvh - 206px) / 2));
   color: #f5f7fb;
   background: #11131a;
   font-family:
@@ -137,6 +137,64 @@ button {
   gap: clamp(2px, 0.55dvh, 3px);
 }
 
+.controls-hint {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.controls-hint h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.controls-hint dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.controls-hint div {
+  display: grid;
+  grid-template-columns: minmax(58px, auto) 1fr;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.controls-hint dt,
+.controls-hint dd {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.controls-hint dt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  background: rgba(7, 10, 18, 0.72);
+  color: #f8fbff;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.controls-hint dd {
+  min-width: 0;
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
 .cell {
   min-width: 0;
   min-height: 0;
@@ -189,7 +247,7 @@ button {
 
 @media (max-width: 440px) {
   :root {
-    --panel-width: min(100%, calc((100dvh - 96px) / 2));
+    --panel-width: min(100%, calc((100dvh - 194px) / 2));
   }
 
   .app-shell {
@@ -208,11 +266,15 @@ button {
     min-width: 68px;
     padding: 0 8px;
   }
+
+  .controls-hint dl {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-height: 640px) {
   :root {
-    --panel-width: min(380px, 100%, calc((100dvh - 88px) / 2));
+    --panel-width: min(380px, 100%, calc((100dvh - 186px) / 2));
   }
 
   .game-panel {
@@ -222,5 +284,18 @@ button {
   .stat,
   .scorebar button {
     min-height: 40px;
+  }
+
+  .controls-hint {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .controls-hint h2 {
+    font-size: 12px;
+  }
+
+  .controls-hint dt {
+    min-height: 22px;
   }
 }
