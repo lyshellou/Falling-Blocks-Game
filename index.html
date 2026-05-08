@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Russian Brick</title>
+  </head>
+  <body>
+    <main id="app" class="app-shell">
+      <section class="game-panel" aria-label="Tetris game">
+        <header class="scorebar">
+          <div class="stat">
+            <span class="label">Score</span>
+            <strong id="score">0</strong>
+          </div>
+          <div class="stat">
+            <span class="label">State</span>
+            <strong id="status">Live</strong>
+          </div>
+          <button id="restart" type="button">Restart</button>
+        </header>
+        <div id="board" class="board" aria-label="Game board"></div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
