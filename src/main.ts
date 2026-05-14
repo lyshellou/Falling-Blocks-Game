@@ -61,9 +61,7 @@ const PIECES = [
 
 const boardElement = requiredElement<HTMLDivElement>('#board');
 const scoreElement = requiredElement<HTMLElement>('#score');
-const statusElement = requiredElement<HTMLElement>('#status');
 const restartButton = requiredElement<HTMLButtonElement>('#restart');
-const hardDropButton = requiredElement<HTMLButtonElement>('#hard-drop');
 const helpButton = requiredElement<HTMLButtonElement>('#help');
 const closeHelpButton = requiredElement<HTMLButtonElement>('#close-help');
 const startButton = requiredElement<HTMLButtonElement>('#start-game');
@@ -127,7 +125,6 @@ function drawBoard(): void {
   }
 
   scoreElement.textContent = String(score);
-  statusElement.textContent = isGameOver ? 'Game Over' : isStarted ? 'Live' : 'Ready';
   document.body.classList.toggle('game-over', isGameOver);
   drawNextPreview();
 }
@@ -354,7 +351,6 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 restartButton.addEventListener('click', restartGame);
-hardDropButton.addEventListener('click', hardDropPiece);
 helpButton.addEventListener('click', showHelp);
 closeHelpButton.addEventListener('click', hideHelp);
 startButton.addEventListener('click', startGame);

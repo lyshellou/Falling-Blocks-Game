@@ -52,7 +52,7 @@ button {
 
 .scorebar {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr auto;
   gap: 8px;
   align-items: center;
 }
@@ -366,12 +366,12 @@ button {
   }
 
   .scorebar {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr auto;
     gap: 6px;
   }
 
   .actions {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 
   .scorebar button {
