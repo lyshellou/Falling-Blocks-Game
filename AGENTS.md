@@ -2,100 +2,131 @@
 
 ## 项目概览
 
-这是一个基于 Vite + TypeScript 的网页小游戏项目，项目名是 `russian-brick`。当前实现是一个类似俄罗斯方块的 falling blocks 游戏，主界面包含分数、状态、操作按钮、下一个方块预览、游戏棋盘，以及开始和按键提示弹窗。
+这是一个基于 Vite + TypeScript 的网页 falling blocks 游戏，项目名是 `russian-brick`。
+当前支持两种模式：
+
+- 单人模式：经典单棋盘玩法
+- 双人对战：同机双人限时对战，比较消行数决定胜负
 
 项目是纯前端应用，没有后端服务。构建产物输出到 `dist/`，依赖安装在 `node_modules/`。
 
 ## 主要文件
 
-- `index.html`：页面结构入口，包含游戏面板、开始弹窗、按键提示弹窗，以及加载 `/src/main.ts`。
-- `src/main.ts`：游戏主逻辑，负责棋盘状态、方块生成、移动、旋转、硬降、消行、计分、开始/重开、下一个方块预览和弹窗交互。
-- `src/style.css`：全部页面样式，负责游戏面板、棋盘、方块颜色、按钮、预览区、弹窗和响应式布局。
-- `package.json`：项目脚本和依赖配置。
-- `tsconfig.json`：TypeScript 配置，开启了 `strict`，目标为 ES2020。
-- `README.md`：简短项目说明。
+- `index.html`：页面结构入口，包含顶部状态区、单/双人棋盘区域、开始弹窗、帮助弹窗，并加载 `/src/main.ts`
+- `src/main.ts`：游戏主逻辑，负责模式切换、玩家状态、掉落循环、消行、计时、胜负判定、输入处理和弹窗交互
+- `src/style.css`：全部页面样式，负责整体布局、棋盘尺寸约束、按钮、预览区、弹窗和响应式布局
+- `package.json`：项目脚本和依赖配置
+- `tsconfig.json`：TypeScript 配置，开启了 `strict`
+- `README.md`：简短项目说明
 
 ## 运行命令
 
-推荐在 Windows PowerShell 中使用 `npm.cmd`，因为当前环境可能禁止直接运行 `npm.ps1`。
+推荐在 Windows PowerShell 中使用 `npm.cmd`，不要直接运行 `npm.ps1`。
 
 - 安装依赖：`npm.cmd install`
 - 启动开发服务：`npm.cmd run dev`
-- 指定端口启动：`npm.cmd run dev -- --port 5173`
+- 指定端口启动：`npm.cmd run dev -- --port 4173`
 - 构建验证：`npm.cmd run build`
 - 预览构建产物：`npm.cmd run preview`
 
-开发服务默认绑定 `127.0.0.1`。
+开发服务默认绑定 `127.0.0.1`。这个项目依赖 Vite 对 `src/main.ts` 的模块处理，不要直接双击 `index.html` 打开，否则脚本可能不会运行。
 
-## 游戏规则与交互
+## 当前玩法
 
-棋盘大小：
+### 公共规则
 
-- 宽度：10 格
-- 高度：20 格
+- 棋盘宽度：10 格
+- 棋盘高度：20 格
 - 自动下落间隔：650ms
+- 方块类型：I、J、L、O、S、T、Z
 
-当前支持的方块颜色和形状定义在 `src/main.ts` 的 `PIECES` 常量中，包括 I、J、L、O、S、T、Z 七类基础形状。
+### 单人模式
 
-键盘操作：
+- 经典单棋盘玩法
+- 计分规则：每消一行加 `100`
+- 堆满后结束，顶部状态显示 `Game Over`
 
-- `←`：向左移动
-- `→`：向右移动
-- `↓`：加速下落一格
-- `↑`：旋转方块
+### 双人对战模式
+
+- 两个玩家共用同一页面
+- 开始前可以输入对战时长，默认 `120` 秒，允许范围 `30-300`
+- 时间结束时按双方消行数决定胜负
+- 若一方提前堆满，则立即判另一方获胜
+
+## 当前按键
+
+### 玩家 1
+
+- `←`：左移
+- `→`：右移
+- `↓`：下落一格
+- `↑`：旋转
 - `Space`：直接落到底部
-- `R`：重新开始
-- `Escape`：关闭按键提示弹窗
 
-按钮操作：
+### 玩家 2
 
-- `到底`：当前方块直接落到底部
-- `Restart`：重新开始游戏
-- `?`：打开按键提示弹窗
-- `开始游戏`：关闭开局弹窗并开始自动下落
+- `A`：左移
+- `D`：右移
+- `S`：下落一格
+- `W`：旋转
+- `Shift`：直接落到底部
 
-游戏刚进入页面时不会自动开始，初始状态为 `Ready`，需要点击开始弹窗里的“开始游戏”按钮才会启动定时器。游戏结束后状态显示为 `Game Over`，并停止下落定时器。
+### 全局
 
-## 代码结构要点
+- `R`：重开当前模式
+- `Escape`：关闭帮助弹窗
 
-`src/main.ts` 中的核心状态：
+## 关键状态与结构
 
-- `board`：20 行 x 10 列的棋盘数组，单元格为颜色字符串或 `null`。
-- `currentPiece`：当前正在下落的方块。
-- `nextPiece`：下一个方块，用于预览和生成。
-- `score`：当前分数。
-- `isStarted`：游戏是否已经开始。
-- `isGameOver`：游戏是否结束。
-- `dropTimer`：自动下落的 `setInterval` 句柄。
+`src/main.ts` 当前核心类型和状态：
 
-主要函数：
+- `GameMode`：`'single' | 'versus'`
+- `PlayerState`：单个玩家的棋盘、当前方块、下一个方块、分数、消行数、是否出局
+- `MatchResult`：双人模式胜负结果
+- `selectedMode`：开始弹窗里当前选中的模式
+- `currentMode`：当前正在运行的模式
+- `playerOne` / `playerTwo`：两个玩家的运行时状态
+- `remainingSeconds`：双人模式倒计时
+- `dropTimer`：自动下落定时器
+- `versusTimer`：双人模式倒计时定时器
 
-- `createBoard()`：创建空棋盘。
-- `createPiece()`：随机创建一个方块。
-- `drawBoard()`：重绘棋盘、分数、状态和下一个方块预览。
-- `tick()`：自动下落一步，不能继续下落时锁定方块、消行并生成下一个方块。
-- `movePiece(dx, dy)`：尝试移动方块。
-- `rotatePiece()`：顺时针旋转当前方块。
-- `hardDropPiece()`：持续下落直到碰撞，然后锁定方块。
-- `clearLines()`：清除满行，每行加 100 分。
-- `spawnNextPiece()`：把 `nextPiece` 提升为当前方块，并生成新的 `nextPiece`。
-- `startGame()` / `restartGame()`：开始和重开游戏。
-- `showHelp()` / `hideHelp()`：控制按键提示弹窗。
+## 主要函数
+
+- `createPlayerState()`：创建一个新的玩家状态
+- `drawGame()`：根据当前模式刷新整页 UI
+- `drawPlayer()`：渲染单个玩家面板
+- `tick()`：推进当前游戏循环
+- `tickPlayer()`：推进单个玩家一步
+- `movePiece()`：移动方块
+- `rotatePiece()`：旋转方块
+- `hardDropPiece()`：硬降并锁定
+- `clearLines()`：清空满行并返回消行数
+- `spawnNextPiece()`：切换到下一块方块
+- `startGame()` / `restartGame()`：开始或重开
+- `setSelectedMode()`：切换开始弹窗中的模式
+- `handleKeydown()`：统一处理单人和双人输入
 
 ## 样式与布局约定
 
-- 整体使用深色玻璃质感 UI。
-- 棋盘使用 CSS Grid，固定 10 列，`aspect-ratio: 1 / 2` 保持 10x20 比例。
-- 方块颜色通过 `.cyan`、`.blue`、`.orange`、`.yellow`、`.green`、`.purple`、`.red` 等类控制。
-- `--panel-width` 会根据视口高度动态计算，避免棋盘和顶部信息区域溢出。
-- 小屏幕下 `.scorebar` 会变成两列，操作按钮单独占一行。
-- 弹窗统一使用 `.modal-overlay` 和 `.modal`。
+- 整体采用深色玻璃质感 UI
+- 棋盘保持 `aspect-ratio: 1 / 2`
+- 单人和双人模式都要同时受视口宽度和视口高度约束，避免首屏需要滚动才能看到完整界面
+- 双人模式桌面端为双栏布局，窄屏下自动改为纵向堆叠
+- 弹窗统一使用 `.modal-overlay` 和 `.modal`
+- 颜色类通过 `.cyan`、`.blue`、`.orange`、`.yellow`、`.green`、`.purple`、`.red` 控制
 
 ## 开发注意事项
 
-- 修改 DOM 结构时，要同步检查 `src/main.ts` 中的 `requiredElement(...)` 选择器，缺失元素会直接抛错。
-- 修改中文文案时，注意文件应保持 UTF-8 编码；终端输出中文乱码不一定代表文件内容错误。
-- 修改按键功能时，要同时更新 `handleKeydown(...)` 和按键提示弹窗里的文案。
-- 修改方块渲染时，注意棋盘格 `.cell` 和预览格 `.preview-cell` 都会复用 `.filled` 和颜色类。
-- 运行验证时优先使用 `npm.cmd run build`，它会先跑 TypeScript 编译检查再跑 Vite 构建。
-- 当前没有自动化测试，功能改动后建议至少手动检查：开局弹窗、开始游戏、左右移动、旋转、加速下落、硬降、重新开始、按键提示弹窗、下一个方块预览。
+- 修改 DOM 结构时，要同步检查 `src/main.ts` 中的 `requiredElement(...)`
+- 修改开始弹窗时，要同时检查模式切换、时长输入、开始按钮和运行时提示文案
+- 修改双人输入时，要同时更新 `PLAYER_TWO_KEYS` 和帮助弹窗文案
+- 修改布局时，优先保证首屏完整可见，其次再处理滚动
+- 运行验证时优先使用 `npm.cmd run build`
+- 当前没有自动化测试，功能改动后建议至少手动检查：
+  - 开始弹窗是否可点击
+  - 单人/双人模式切换
+  - 开始游戏和重新开始
+  - 单人模式的移动、旋转、硬降
+  - 双人模式的双方独立输入
+  - 倒计时与胜负判定
+  - 帮助弹窗打开和关闭
