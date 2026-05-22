@@ -1,5 +1,6 @@
 :root {
   --stack-gap: 12px;
+  --versus-gap: clamp(16px, 20vw, 100px);
   --shell-padding: clamp(8px, 1.6dvh, 14px);
   --chrome-height: 276px;
   --board-width: min(392px, calc((100dvh - var(--chrome-height)) / 2), calc(100vw - 24px));
@@ -32,8 +33,8 @@ body {
 
 body.mode-versus {
   --chrome-height: 288px;
-  --board-width: min(250px, calc((100dvh - var(--chrome-height)) / 2), calc((100vw - 36px - var(--stack-gap)) / 2));
-  --shell-width: calc(var(--board-width) * 2 + var(--stack-gap));
+  --board-width: min(250px, calc((100dvh - var(--chrome-height)) / 2), calc((100vw - 36px - var(--versus-gap)) / 2));
+  --shell-width: calc(var(--board-width) * 2 + var(--versus-gap));
 }
 
 button,
@@ -178,6 +179,7 @@ button:active {
 
 body.mode-versus .boards-layout {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--versus-gap);
 }
 
 .player-panel {
