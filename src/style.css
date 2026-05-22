@@ -106,7 +106,18 @@ body.mode-versus .summary-grid {
 }
 
 .compact {
-  min-height: 46px;
+  min-height: 54px;
+}
+
+.compact .label {
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.compact strong {
+  margin-top: 2px;
+  font-size: clamp(13px, 2dvh, 18px);
+  line-height: 1.05;
 }
 
 .label {

@@ -92,7 +92,7 @@ const PIECES = [
   },
 ];
 
-const PLAYER_ONE_KEYS: PlayerKeyBindings = {
+const SINGLE_PLAYER_KEYS: PlayerKeyBindings = {
   left: 'ArrowLeft',
   right: 'ArrowRight',
   down: 'ArrowDown',
@@ -100,12 +100,20 @@ const PLAYER_ONE_KEYS: PlayerKeyBindings = {
   hardDrop: ' ',
 };
 
-const PLAYER_TWO_KEYS: PlayerKeyBindings = {
+const VERSUS_PLAYER_ONE_KEYS: PlayerKeyBindings = {
   left: 'a',
   right: 'd',
   down: 's',
   rotate: 'w',
   hardDrop: 'shift',
+};
+
+const VERSUS_PLAYER_TWO_KEYS: PlayerKeyBindings = {
+  left: 'ArrowLeft',
+  right: 'ArrowRight',
+  down: 'ArrowDown',
+  rotate: 'ArrowUp',
+  hardDrop: ' ',
 };
 
 const bodyElement = requiredElement<HTMLBodyElement>('body');
@@ -668,10 +676,11 @@ function handleKeydown(event: KeyboardEvent): void {
     return;
   }
 
-  let handled = handlePlayerInput(playerOne, PLAYER_ONE_KEYS, event);
+  const playerOneBindings = currentMode === 'versus' ? VERSUS_PLAYER_ONE_KEYS : SINGLE_PLAYER_KEYS;
+  let handled = handlePlayerInput(playerOne, playerOneBindings, event);
 
   if (currentMode === 'versus') {
-    handled = handlePlayerInput(playerTwo, PLAYER_TWO_KEYS, event) || handled;
+    handled = handlePlayerInput(playerTwo, VERSUS_PLAYER_TWO_KEYS, event) || handled;
   }
 
   if (handled) {
