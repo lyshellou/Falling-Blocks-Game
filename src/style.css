@@ -94,6 +94,11 @@ input {
   gap: 8px;
 }
 
+.summary-grid .stat {
+  align-items: center;
+  text-align: center;
+}
+
 body.mode-versus .summary-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
