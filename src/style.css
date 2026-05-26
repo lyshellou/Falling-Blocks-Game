@@ -37,8 +37,8 @@ body.mode-single {
 }
 
 body.mode-versus {
-  --chrome-height: 288px;
-  --board-width: min(340px, calc((100dvh - var(--chrome-height)) / 1.6), calc((100vw - 80px - var(--versus-gap)) / 2));
+  --chrome-height: 300px;
+  --board-width: min(326px, calc((100dvh - var(--chrome-height)) / 1.66), calc((100vw - 80px - var(--versus-gap)) / 2));
   --shell-width: calc(var(--board-width) * 2 + var(--versus-gap));
 }
 
@@ -222,7 +222,10 @@ body.mode-versus .boards-layout {
 }
 
 .player-stats > .next-panel {
-  grid-column: 1 / -1;
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 0;
+  padding: 5px 8px;
 }
 
 .player-title {
@@ -257,19 +260,12 @@ body.mode-versus .boards-layout {
   font-size: 15px;
 }
 
-body.mode-single #player1-panel .player-stats > .next-panel {
-  grid-column: 2;
-  grid-row: 1;
-  min-height: 0;
-  padding: 5px 8px;
-}
-
-body.mode-single #player1-panel .player-stats > .next-panel strong {
+.player-stats > .next-panel strong {
   margin-top: 2px;
   font-size: 14px;
 }
 
-body.mode-single #player1-panel .player-stats > .next-panel .preview {
+.player-stats > .next-panel .preview {
   width: 44px;
 }
 
@@ -567,7 +563,7 @@ body.app-ready .runtime-warning {
     grid-template-columns: 1fr;
   }
 
-  body.mode-single #player1-panel .player-stats > .next-panel {
+  .player-stats > .next-panel {
     grid-column: 1;
     grid-row: auto;
   }

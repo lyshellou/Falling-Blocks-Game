@@ -40,8 +40,6 @@ type PlayerDom = {
   title: HTMLElement;
   status: HTMLElement;
   score: HTMLElement;
-  lines: HTMLElement;
-  linesCard: HTMLElement;
   board: HTMLDivElement;
   preview: HTMLDivElement;
 };
@@ -141,8 +139,6 @@ const playerDoms: Record<'player1' | 'player2', PlayerDom> = {
     title: requiredElement<HTMLElement>('#player1-title'),
     status: requiredElement<HTMLElement>('#player1-state'),
     score: requiredElement<HTMLElement>('#player1-score'),
-    lines: requiredElement<HTMLElement>('#player1-lines'),
-    linesCard: requiredElement<HTMLElement>('#player1-lines-card'),
     board: requiredElement<HTMLDivElement>('#player1-board'),
     preview: requiredElement<HTMLDivElement>('#player1-next-preview'),
   },
@@ -151,8 +147,6 @@ const playerDoms: Record<'player1' | 'player2', PlayerDom> = {
     title: requiredElement<HTMLElement>('#player2-title'),
     status: requiredElement<HTMLElement>('#player2-state'),
     score: requiredElement<HTMLElement>('#player2-score'),
-    lines: requiredElement<HTMLElement>('#player2-lines'),
-    linesCard: requiredElement<HTMLElement>('#player2-lines-card'),
     board: requiredElement<HTMLDivElement>('#player2-board'),
     preview: requiredElement<HTMLDivElement>('#player2-next-preview'),
   },
@@ -217,7 +211,6 @@ function drawGame(): void {
   bodyElement.classList.toggle('mode-single', !isVersus);
   bodyElement.classList.toggle('mode-versus', isVersus);
   playerTwoPanelElement.classList.toggle('hidden', !isVersus);
-  playerDoms.player1.linesCard.classList.toggle('hidden', !isVersus);
   timerCardElement.classList.toggle('hidden', !isVersus);
 
   modeLabelElement.textContent = isVersus ? 'Versus' : 'Single';
@@ -226,13 +219,11 @@ function drawGame(): void {
 
   drawPlayer(playerOne, playerDoms.player1, {
     name: isVersus ? 'Player 1' : 'Solo',
-    showLines: isVersus,
   });
 
   if (isVersus) {
     drawPlayer(playerTwo, playerDoms.player2, {
       name: 'Player 2',
-      showLines: true,
     });
   }
 
@@ -242,7 +233,7 @@ function drawGame(): void {
 function drawPlayer(
   player: PlayerState,
   dom: PlayerDom,
-  options: { name: string; showLines: boolean },
+  options: { name: string },
 ): void {
   const activeCells = new Map<string, string>();
 
@@ -254,8 +245,6 @@ function drawPlayer(
   dom.title.textContent = options.name;
   dom.status.textContent = getPlayerStatus(player);
   dom.score.textContent = String(player.score);
-  dom.lines.textContent = String(player.clearedLines);
-  dom.linesCard.classList.toggle('hidden', !options.showLines);
   dom.board.innerHTML = '';
 
   for (let y = 0; y < BOARD_HEIGHT; y += 1) {
