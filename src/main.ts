@@ -32,6 +32,7 @@ type PlayerState = {
   nextPiece: Piece;
   score: number;
   clearedLines: number;
+  combo: number;
   isGameOver: boolean;
 };
 
@@ -196,6 +197,7 @@ function createPlayerState(): PlayerState {
     nextPiece: createPiece(),
     score: 0,
     clearedLines: 0,
+    combo: 0,
     isGameOver: false,
   };
 }
@@ -320,11 +322,7 @@ function tickPlayer(player: PlayerState): void {
   }
 
   if (!movePiece(player, 0, 1)) {
-    lockPiece(player);
-    const clearedCount = clearLines(player);
-    player.clearedLines += clearedCount;
-    player.score += clearedCount * 100;
-    spawnNextPiece(player);
+    resolveLockedPiece(player);
   }
 }
 
@@ -371,11 +369,7 @@ function hardDropPiece(player: PlayerState): void {
     // Keep dropping until the next row would collide.
   }
 
-  lockPiece(player);
-  const clearedCount = clearLines(player);
-  player.clearedLines += clearedCount;
-  player.score += clearedCount * 100;
-  spawnNextPiece(player);
+  resolveLockedPiece(player);
 
   if (currentMode === 'versus') {
     if (player === playerOne && player.isGameOver && !playerTwo.isGameOver) {
@@ -408,6 +402,22 @@ function lockPiece(player: PlayerState): void {
       player.board[y][x] = player.currentPiece.color;
     }
   });
+}
+
+function resolveLockedPiece(player: PlayerState): void {
+  lockPiece(player);
+
+  const clearedCount = clearLines(player);
+
+  if (clearedCount > 0) {
+    player.clearedLines += clearedCount;
+    player.combo += 1;
+    player.score += clearedCount * 100 + player.combo * 50;
+  } else {
+    player.combo = 0;
+  }
+
+  spawnNextPiece(player);
 }
 
 function clearLines(player: PlayerState): number {
@@ -584,7 +594,11 @@ function getPlayerStatus(player: PlayerState): string {
     return 'KO';
   }
 
-  return isStarted ? 'Live' : 'Ready';
+  if (!isStarted) {
+    return 'Ready';
+  }
+
+  return `Live | Combo x${player.combo}`;
 }
 
 function getResultText(): string {
