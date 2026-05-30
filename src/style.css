@@ -21,14 +21,50 @@
 }
 
 body {
+  position: relative;
   min-width: 320px;
   min-height: 100dvh;
   margin: 0;
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(7, 10, 18, 0.12), rgba(7, 10, 18, 0.34)),
+    linear-gradient(180deg, rgba(7, 10, 18, 0.28), rgba(7, 10, 18, 0.52)),
     url("./assets/tetris-background.png") center / cover no-repeat,
     #0b111d;
+  isolation: isolate;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -12vmax;
+  z-index: 0;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity, background-position;
+}
+
+body::before {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(0, 229, 255, 0.62), transparent 26%),
+    radial-gradient(circle at 82% 20%, rgba(255, 214, 102, 0.34), transparent 22%),
+    radial-gradient(circle at 70% 78%, rgba(255, 92, 116, 0.32), transparent 24%),
+    linear-gradient(120deg, rgba(53, 98, 255, 0.28), rgba(0, 255, 200, 0.18), rgba(255, 168, 84, 0.18));
+  background-size: 150% 150%;
+  filter: blur(44px) saturate(165%);
+  opacity: 0.84;
+  animation: ambient-flow 24s ease-in-out infinite alternate;
+}
+
+body::after {
+  background:
+    radial-gradient(circle at 20% 82%, rgba(86, 255, 153, 0.28), transparent 24%),
+    radial-gradient(circle at 88% 66%, rgba(96, 165, 250, 0.34), transparent 22%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 36%, rgba(255, 255, 255, 0.05));
+  background-size: 190% 190%;
+  filter: blur(34px) saturate(135%);
+  opacity: 0.58;
+  animation: ambient-drift 34s linear infinite;
 }
 
 body.mode-single {
@@ -56,6 +92,8 @@ input {
   min-height: 100dvh;
   place-items: center;
   padding: var(--shell-padding);
+  position: relative;
+  z-index: 1;
 }
 
 .game-shell {
@@ -63,6 +101,8 @@ input {
   width: min(1400px, 96vw);
   max-height: calc(100dvh - var(--shell-padding) * 2);
   gap: 10px;
+  position: relative;
+  z-index: 1;
 }
 
 .topbar,
@@ -77,6 +117,43 @@ input {
     0 26px 80px rgba(0, 0, 0, 0.46),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(24px);
+}
+
+@keyframes ambient-flow {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+    background-position: 0% 20%;
+    opacity: 0.62;
+  }
+
+  50% {
+    transform: translate3d(2%, 1.5%, 0) scale(1.04);
+    background-position: 100% 80%;
+    opacity: 0.78;
+  }
+
+  100% {
+    transform: translate3d(-1%, 2%, 0) scale(1.02);
+    background-position: 35% 100%;
+    opacity: 0.66;
+  }
+}
+
+@keyframes ambient-drift {
+  0% {
+    transform: translate3d(1.5%, -1%, 0) rotate(0deg) scale(1);
+    background-position: 0% 0%;
+  }
+
+  50% {
+    transform: translate3d(-1.5%, 2%, 0) rotate(6deg) scale(1.03);
+    background-position: 100% 50%;
+  }
+
+  100% {
+    transform: translate3d(1%, -1.5%, 0) rotate(0deg) scale(1.01);
+    background-position: 0% 100%;
+  }
 }
 
 .topbar {
@@ -382,9 +459,25 @@ body.mode-versus .boards-layout {
   display: grid;
   place-items: center;
   padding: 18px;
+  overflow: hidden;
   pointer-events: auto;
-  background: rgba(5, 7, 12, 0.64);
+  background: rgba(5, 7, 12, 0.46);
   backdrop-filter: blur(8px);
+}
+
+.modal-overlay::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 28%, rgba(0, 229, 255, 0.3), transparent 26%),
+    radial-gradient(circle at 82% 20%, rgba(255, 214, 102, 0.2), transparent 22%),
+    radial-gradient(circle at 72% 82%, rgba(255, 92, 116, 0.18), transparent 24%);
+  filter: blur(42px) saturate(145%);
+  opacity: 0.72;
+  animation: ambient-flow 26s ease-in-out infinite alternate;
 }
 
 .modal {
@@ -415,6 +508,13 @@ body.mode-versus .boards-layout {
   color: #cbd5e1;
   font-size: 14px;
   line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none;
+  }
 }
 
 .runtime-warning {
