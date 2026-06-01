@@ -294,13 +294,13 @@ body.mode-versus .boards-layout {
 .player-head,
 .player-stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
-.player-stats > .next-panel {
-  grid-column: 2;
-  grid-row: 1;
+.player-stats > .stat,
+.player-stats > .next-panel,
+.player-stats > .hold-panel {
   min-height: 0;
   padding: 5px 8px;
 }
@@ -343,6 +343,10 @@ body.mode-versus .boards-layout {
 }
 
 .player-stats > .next-panel .preview {
+  width: 44px;
+}
+
+.player-stats > .hold-panel .preview {
   width: 44px;
 }
 
@@ -661,11 +665,6 @@ body.app-ready .runtime-warning {
   .player-head,
   .player-stats {
     grid-template-columns: 1fr;
-  }
-
-  .player-stats > .next-panel {
-    grid-column: 1;
-    grid-row: auto;
   }
 
   .panel-status {

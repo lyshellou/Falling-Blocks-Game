@@ -18,21 +18,29 @@ type Piece = {
   y: number;
 };
 
+type PieceTemplate = {
+  shape: number[][];
+  color: string;
+};
+
 type PlayerKeyBindings = {
   left: string;
   right: string;
   down: string;
   rotate: string;
   hardDrop: string;
+  hold: string;
 };
 
 type PlayerState = {
   board: Cell[][];
   currentPiece: Piece;
   nextPiece: Piece;
+  heldPiece: Piece | null;
   score: number;
   clearedLines: number;
   combo: number;
+  canHold: boolean;
   isGameOver: boolean;
 };
 
@@ -41,11 +49,12 @@ type PlayerDom = {
   title: HTMLElement;
   status: HTMLElement;
   score: HTMLElement;
+  holdPreview: HTMLDivElement;
   board: HTMLDivElement;
   preview: HTMLDivElement;
 };
 
-const PIECES = [
+const PIECES: PieceTemplate[] = [
   { color: 'cyan', shape: [[1, 1, 1, 1]] },
   {
     color: 'blue',
@@ -97,6 +106,7 @@ const SINGLE_PLAYER_KEYS: PlayerKeyBindings = {
   down: 'ArrowDown',
   rotate: 'ArrowUp',
   hardDrop: ' ',
+  hold: 'c',
 };
 
 const VERSUS_PLAYER_ONE_KEYS: PlayerKeyBindings = {
@@ -105,6 +115,7 @@ const VERSUS_PLAYER_ONE_KEYS: PlayerKeyBindings = {
   down: 's',
   rotate: 'w',
   hardDrop: 'shift',
+  hold: 'c',
 };
 
 const VERSUS_PLAYER_TWO_KEYS: PlayerKeyBindings = {
@@ -113,6 +124,7 @@ const VERSUS_PLAYER_TWO_KEYS: PlayerKeyBindings = {
   down: 'ArrowDown',
   rotate: 'ArrowUp',
   hardDrop: ' ',
+  hold: 'm',
 };
 
 const bodyElement = requiredElement<HTMLBodyElement>('body');
@@ -140,6 +152,7 @@ const playerDoms: Record<'player1' | 'player2', PlayerDom> = {
     title: requiredElement<HTMLElement>('#player1-title'),
     status: requiredElement<HTMLElement>('#player1-state'),
     score: requiredElement<HTMLElement>('#player1-score'),
+    holdPreview: requiredElement<HTMLDivElement>('#player1-hold-preview'),
     board: requiredElement<HTMLDivElement>('#player1-board'),
     preview: requiredElement<HTMLDivElement>('#player1-next-preview'),
   },
@@ -148,6 +161,7 @@ const playerDoms: Record<'player1' | 'player2', PlayerDom> = {
     title: requiredElement<HTMLElement>('#player2-title'),
     status: requiredElement<HTMLElement>('#player2-state'),
     score: requiredElement<HTMLElement>('#player2-score'),
+    holdPreview: requiredElement<HTMLDivElement>('#player2-hold-preview'),
     board: requiredElement<HTMLDivElement>('#player2-board'),
     preview: requiredElement<HTMLDivElement>('#player2-next-preview'),
   },
@@ -180,14 +194,7 @@ function createBoard(): Cell[][] {
 
 function createPiece(): Piece {
   const template = PIECES[Math.floor(Math.random() * PIECES.length)];
-  const shape = template.shape.map((row) => [...row]);
-
-  return {
-    shape,
-    color: template.color,
-    x: Math.floor((BOARD_WIDTH - shape[0].length) / 2),
-    y: 0,
-  };
+  return createPieceFromTemplate(template);
 }
 
 function createPlayerState(): PlayerState {
@@ -195,9 +202,11 @@ function createPlayerState(): PlayerState {
     board: createBoard(),
     currentPiece: createPiece(),
     nextPiece: createPiece(),
+    heldPiece: null,
     score: 0,
     clearedLines: 0,
     combo: 0,
+    canHold: true,
     isGameOver: false,
   };
 }
@@ -247,6 +256,7 @@ function drawPlayer(
   dom.title.textContent = options.name;
   dom.status.textContent = getPlayerStatus(player);
   dom.score.textContent = String(player.score);
+  drawPiecePreview(player.heldPiece, dom.holdPreview);
   dom.board.innerHTML = '';
 
   for (let y = 0; y < BOARD_HEIGHT; y += 1) {
@@ -261,24 +271,27 @@ function drawPlayer(
     }
   }
 
-  drawNextPreview(player.nextPiece, dom.preview);
+  drawPiecePreview(player.nextPiece, dom.preview);
 }
 
-function drawNextPreview(piece: Piece, previewElement: HTMLDivElement): void {
+function drawPiecePreview(piece: Piece | null, previewElement: HTMLDivElement): void {
   previewElement.innerHTML = '';
 
   const previewSize = 4;
-  const offsetX = Math.floor((previewSize - piece.shape[0].length) / 2);
-  const offsetY = Math.floor((previewSize - piece.shape.length) / 2);
   const previewCells = new Map<string, string>();
 
-  piece.shape.forEach((row, rowIndex) => {
-    row.forEach((value, columnIndex) => {
-      if (value) {
-        previewCells.set(`${columnIndex + offsetX},${rowIndex + offsetY}`, piece.color);
-      }
+  if (piece) {
+    const offsetX = Math.floor((previewSize - piece.shape[0].length) / 2);
+    const offsetY = Math.floor((previewSize - piece.shape.length) / 2);
+
+    piece.shape.forEach((row, rowIndex) => {
+      row.forEach((value, columnIndex) => {
+        if (value) {
+          previewCells.set(`${columnIndex + offsetX},${rowIndex + offsetY}`, piece.color);
+        }
+      });
     });
-  });
+  }
 
   for (let y = 0; y < previewSize; y += 1) {
     for (let x = 0; x < previewSize; x += 1) {
@@ -384,6 +397,34 @@ function hardDropPiece(player: PlayerState): void {
   drawGame();
 }
 
+function holdPiece(player: PlayerState): void {
+  if (!isStarted || player.isGameOver || !player.canHold) {
+    return;
+  }
+
+  const heldPiece = player.heldPiece;
+  player.heldPiece = createPieceFromCurrent(player.currentPiece);
+  player.canHold = false;
+
+  if (heldPiece) {
+    player.currentPiece = createPieceFromCurrent(heldPiece);
+  } else {
+    player.currentPiece = player.nextPiece;
+    player.nextPiece = createPiece();
+  }
+
+  if (hasCollision(player, player.currentPiece)) {
+    player.isGameOver = true;
+
+    if (currentMode === 'single') {
+      stopDropTimer();
+      isStarted = false;
+    } else {
+      finishVersusIfNeeded();
+    }
+  }
+}
+
 function hasCollision(player: PlayerState, piece: Piece): boolean {
   let collided = false;
 
@@ -436,6 +477,7 @@ function clearLines(player: PlayerState): number {
 function spawnNextPiece(player: PlayerState): void {
   player.currentPiece = player.nextPiece;
   player.nextPiece = createPiece();
+  player.canHold = true;
 
   if (hasCollision(player, player.currentPiece)) {
     player.isGameOver = true;
@@ -443,7 +485,19 @@ function spawnNextPiece(player: PlayerState): void {
     if (currentMode === 'single') {
       stopDropTimer();
       isStarted = false;
+    } else {
+      finishVersusIfNeeded();
     }
+  }
+}
+
+function finishVersusIfNeeded(): void {
+  if (playerOne.isGameOver && !playerTwo.isGameOver) {
+    finishVersusMatch('player2');
+  } else if (playerTwo.isGameOver && !playerOne.isGameOver) {
+    finishVersusMatch('player1');
+  } else if (playerOne.isGameOver && playerTwo.isGameOver) {
+    finishVersusMatch('draw');
   }
 }
 
@@ -601,6 +655,24 @@ function getPlayerStatus(player: PlayerState): string {
   return `Live | Combo x${player.combo}`;
 }
 
+function createPieceFromCurrent(piece: Piece): Piece {
+  return createPieceFromTemplate({
+    color: piece.color,
+    shape: piece.shape,
+  });
+}
+
+function createPieceFromTemplate(template: PieceTemplate): Piece {
+  const shape = template.shape.map((row) => [...row]);
+
+  return {
+    shape,
+    color: template.color,
+    x: Math.floor((BOARD_WIDTH - shape[0].length) / 2),
+    y: 0,
+  };
+}
+
 function getResultText(): string {
   if (currentMode === 'single') {
     if (playerOne.isGameOver) {
@@ -659,6 +731,12 @@ function handlePlayerInput(player: PlayerState, bindings: PlayerKeyBindings, eve
   if (event.key === bindings.hardDrop || loweredKey === bindings.hardDrop) {
     event.preventDefault();
     hardDropPiece(player);
+    return true;
+  }
+
+  if (event.key === bindings.hold || loweredKey === bindings.hold) {
+    event.preventDefault();
+    holdPiece(player);
     return true;
   }
 
