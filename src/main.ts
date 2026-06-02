@@ -143,6 +143,7 @@ const versusModeButton = requiredElement<HTMLButtonElement>('#versus-mode-button
 const modeDescriptionElement = requiredElement<HTMLElement>('#mode-description');
 const durationFieldElement = requiredElement<HTMLElement>('#duration-field');
 const versusDurationInput = requiredElement<HTMLInputElement>('#versus-duration');
+const holdEnabledInput = requiredElement<HTMLInputElement>('#hold-enabled');
 const startModal = requiredElement<HTMLDivElement>('#start-modal');
 const helpModal = requiredElement<HTMLDivElement>('#help-modal');
 
@@ -187,6 +188,7 @@ let versusTimer: number | undefined;
 let versusDurationSeconds = DEFAULT_VERSUS_DURATION_SECONDS;
 let remainingSeconds = DEFAULT_VERSUS_DURATION_SECONDS;
 let matchResult: MatchResult = null;
+let isHoldEnabled = false;
 
 function createBoard(): Cell[][] {
   return Array.from({ length: BOARD_HEIGHT }, () => Array<Cell>(BOARD_WIDTH).fill(null));
@@ -221,6 +223,7 @@ function drawGame(): void {
 
   bodyElement.classList.toggle('mode-single', !isVersus);
   bodyElement.classList.toggle('mode-versus', isVersus);
+  bodyElement.classList.toggle('hold-enabled', isHoldEnabled);
   playerTwoPanelElement.classList.toggle('hidden', !isVersus);
   timerCardElement.classList.toggle('hidden', !isVersus);
 
@@ -398,7 +401,7 @@ function hardDropPiece(player: PlayerState): void {
 }
 
 function holdPiece(player: PlayerState): void {
-  if (!isStarted || player.isGameOver || !player.canHold) {
+  if (!isStarted || !isHoldEnabled || player.isGameOver || !player.canHold) {
     return;
   }
 
@@ -503,6 +506,7 @@ function finishVersusIfNeeded(): void {
 
 function startGame(): void {
   currentMode = selectedMode;
+  isHoldEnabled = holdEnabledInput.checked;
   versusDurationSeconds = sanitizeDuration(versusDurationInput.value);
   versusDurationInput.value = String(versusDurationSeconds);
   remainingSeconds = versusDurationSeconds;
@@ -516,6 +520,7 @@ function startGame(): void {
 }
 
 function restartGame(): void {
+  isHoldEnabled = holdEnabledInput.checked;
   versusDurationSeconds = sanitizeDuration(versusDurationInput.value);
   versusDurationInput.value = String(versusDurationSeconds);
   remainingSeconds = versusDurationSeconds;
@@ -734,7 +739,7 @@ function handlePlayerInput(player: PlayerState, bindings: PlayerKeyBindings, eve
     return true;
   }
 
-  if (event.key === bindings.hold || loweredKey === bindings.hold) {
+  if (isHoldEnabled && (event.key === bindings.hold || loweredKey === bindings.hold)) {
     event.preventDefault();
     holdPiece(player);
     return true;

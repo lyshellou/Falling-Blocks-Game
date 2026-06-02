@@ -294,8 +294,19 @@ body.mode-versus .boards-layout {
 .player-head,
 .player-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+}
+
+.player-head {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.player-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.hold-enabled .player-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .player-stats > .stat,
@@ -303,6 +314,11 @@ body.mode-versus .boards-layout {
 .player-stats > .hold-panel {
   min-height: 0;
   padding: 5px 8px;
+}
+
+body:not(.hold-enabled) .hold-panel,
+body:not(.hold-enabled) .hold-control {
+  display: none;
 }
 
 .player-title {
@@ -563,6 +579,34 @@ body.app-ready .runtime-warning {
 .field {
   display: grid;
   gap: 8px;
+}
+
+.feature-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(7, 10, 18, 0.42);
+}
+
+.feature-toggle span {
+  display: grid;
+  gap: 2px;
+}
+
+.feature-toggle small {
+  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.feature-toggle input {
+  width: 22px;
+  height: 22px;
+  accent-color: #f0b93e;
 }
 
 .field input {

@@ -114,6 +114,14 @@
           <button id="versus-mode-button" class="mode-option" type="button" data-mode="versus">Versus</button>
         </div>
 
+        <label class="feature-toggle" for="hold-enabled">
+          <span>
+            <span class="field-label">Hold Piece</span>
+            <small>Enable saving the current block for later.</small>
+          </span>
+          <input id="hold-enabled" type="checkbox" />
+        </label>
+
         <label id="duration-field" class="field hidden" for="versus-duration">
           <span class="field-label">Versus Duration (30-300s)</span>
           <input id="versus-duration" type="number" min="30" max="300" step="1" value="120" inputmode="numeric" />
@@ -144,7 +152,7 @@
               <dt>W</dt>
               <dd>Rotate</dd>
             </div>
-            <div>
+            <div class="hold-control">
               <dt>C</dt>
               <dd>Hold</dd>
             </div>
@@ -169,7 +177,7 @@
               <dt>Up</dt>
               <dd>Rotate</dd>
             </div>
-            <div>
+            <div class="hold-control">
               <dt>M</dt>
               <dd>Hold</dd>
             </div>
